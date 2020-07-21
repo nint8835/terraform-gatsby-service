@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/gin-gonic/gin"
 )
 
@@ -100,21 +100,21 @@ func _ProcessPost(c *gin.Context) {
 
 	defer logReader.Close()
 
-	logBuffer := new(strings.Builder)
-	_, err = io.Copy(logBuffer, logReader)
+	stdout := new(strings.Builder)
+	stderr := new(strings.Builder)
+
+	_, err = stdcopy.StdCopy(stdout, stderr, logReader)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	logs := logBuffer.String()
-	fmt.Println(logs)
-
 	c.JSON(http.StatusOK, gin.H{
 		"container": container,
 		"status":    status,
-		"logs":      logs,
+		"stdout":    stdout.String(),
+		"stderr":    stderr.String(),
 	})
 
 }
