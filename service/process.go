@@ -13,6 +13,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type _ProcessBody struct {
@@ -38,7 +39,6 @@ func _ProcessPost(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println(body)
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -51,13 +51,13 @@ func _ProcessPost(c *gin.Context) {
 	container, err := cli.ContainerCreate(
 		context.TODO(),
 		&container.Config{
-			Image:       "hashicorp/terraform:light",
+			Image:       "nint8835/terraform-provider-gatsby:latest",
 			StopTimeout: &stopTimeout,
 			Entrypoint:  strslice.StrSlice{"terraform", "version", "-no-color"},
 		},
 		&container.HostConfig{},
 		&network.NetworkingConfig{},
-		"terraform-gatsby-service-test",
+		fmt.Sprintf("terraform-gatsby-service-%s", uuid.New().String()),
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
