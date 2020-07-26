@@ -9,7 +9,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/gin-gonic/gin"
@@ -51,10 +50,9 @@ func _ProcessPost(c *gin.Context) {
 	container, err := cli.ContainerCreate(
 		context.TODO(),
 		&container.Config{
-			Image:       "nint8835/terraform-provider-gatsby:latest",
+			Image:       "worker",
 			StopTimeout: &stopTimeout,
-			Entrypoint:  strslice.StrSlice{"sleep"},
-			Cmd:         strslice.StrSlice{"100"},
+			Env:         []string{fmt.Sprintf("TERRAFORM_SOURCE=%s", body.Code)},
 		},
 		&container.HostConfig{},
 		&network.NetworkingConfig{},
@@ -72,34 +70,6 @@ func _ProcessPost(c *gin.Context) {
 		container.ID,
 		types.ContainerStartOptions{},
 	)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	entryTar, err := CreateTarFile("entrypoint.sh", "terraform init && terraform apply")
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = cli.CopyToContainer(context.TODO(), container.ID, "/", entryTar, types.CopyToContainerOptions{AllowOverwriteDirWithFile: true})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	contentsTar, err := CreateTarFile("/terraform/main.tf", body.Code)
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = cli.CopyToContainer(context.TODO(), container.ID, "/tmp", contentsTar, types.CopyToContainerOptions{})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
