@@ -5,19 +5,22 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
+	"time"
 )
 
 // CreateTarFile creates an in-memory TAR file for the purposes of creating a plain-text file within a Docker container.
-func CreateTarFile(path string, contents string) (*tar.Reader, error) {
-	tarBuffer := bytes.NewBuffer([]byte{})
+func CreateTarFile(path string, contents string) (io.Reader, error) {
+	tarBuffer := new(bytes.Buffer)
 
 	tarBufferWriter := bufio.NewWriter(tarBuffer)
 	tarWriter := tar.NewWriter(tarBufferWriter)
 
 	header := &tar.Header{
-		Name: path,
-		Mode: 0600,
-		Size: int64(len(contents)),
+		Name:    path,
+		Mode:    0777,
+		Size:    int64(len(contents)),
+		ModTime: time.Now(),
 	}
 
 	if err := tarWriter.WriteHeader(header); err != nil {
@@ -32,6 +35,5 @@ func CreateTarFile(path string, contents string) (*tar.Reader, error) {
 		return nil, fmt.Errorf("failed to close tar writer: %w", err)
 	}
 
-	tarBufferReader := bufio.NewReader(tarBuffer)
-	return tar.NewReader(tarBufferReader), nil
+	return tarBuffer, nil
 }
