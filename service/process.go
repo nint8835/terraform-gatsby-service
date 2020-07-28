@@ -45,7 +45,7 @@ func _ProcessPost(c *gin.Context) {
 		return
 	}
 
-	stopTimeout := 300
+	stopTimeout := 3
 
 	container, err := cli.ContainerCreate(
 		context.TODO(),
