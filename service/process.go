@@ -50,7 +50,7 @@ func _ProcessPost(c *gin.Context) {
 	container, err := cli.ContainerCreate(
 		context.TODO(),
 		&container.Config{
-			Image:       "worker",
+			Image:       "nint8835/terraform-gatsby-service-worker",
 			StopTimeout: &stopTimeout,
 			Env:         []string{fmt.Sprintf("TERRAFORM_SOURCE=%s", body.Code)},
 		},
