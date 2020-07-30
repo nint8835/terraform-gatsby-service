@@ -7,4 +7,4 @@ RUN go build
 FROM alpine
 WORKDIR /app
 COPY --from=builder /build/terraform-gatsby-service .
-ENTRYPOINT [ "terraform-gatsby-service" ]
+ENTRYPOINT [ "/app/terraform-gatsby-service" ]
