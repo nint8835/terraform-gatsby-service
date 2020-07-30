@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'worker/**'
+      - '.github/workflows/deploy_worker.yml'
 
 jobs:
   deploy:
@@ -19,4 +20,5 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         tags: latest
+        path: ./worker
         dockerfile: ./worker/Dockerfile
