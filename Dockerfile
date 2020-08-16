@@ -6,5 +6,7 @@ RUN go build
 
 FROM alpine
 WORKDIR /app
+ARG gin_mode=release
+ENV GIN_MODE=${gin_mode}
 COPY --from=builder /build/terraform-gatsby-service .
 ENTRYPOINT [ "/app/terraform-gatsby-service" ]
