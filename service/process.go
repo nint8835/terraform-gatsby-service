@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"net/http"
 	"strings"
 
@@ -45,16 +46,23 @@ func _ProcessPost(c *gin.Context) {
 		return
 	}
 
-	stopTimeout := 3
+	stopTimeout := 5
 
+	cpus := big.NewRat(1, 1)
 	container, err := cli.ContainerCreate(
 		context.TODO(),
 		&container.Config{
-			Image:       "nint8835/terraform-gatsby-service-worker",
-			StopTimeout: &stopTimeout,
-			Env:         []string{fmt.Sprintf("TERRAFORM_SOURCE=%s", body.Code)},
+			Image:           "nint8835/terraform-gatsby-service-worker",
+			StopTimeout:     &stopTimeout,
+			Env:             []string{fmt.Sprintf("TERRAFORM_SOURCE=%s", body.Code)},
+			NetworkDisabled: true,
 		},
-		&container.HostConfig{},
+		&container.HostConfig{
+			Resources: container.Resources{
+				Memory:   128 * 1024 * 1024,
+				NanoCPUs: cpus.Mul(cpus, big.NewRat(1e9, 1)).Num().Int64(),
+			},
+		},
 		&network.NetworkingConfig{},
 		fmt.Sprintf("terraform-gatsby-service-%s", uuid.New().String()),
 	)
