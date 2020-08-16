@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -31,6 +33,18 @@ func _CleanupContainer(containerID string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func _Error(c *gin.Context, err error, wrapperMessage string) {
+	wrappedError := fmt.Errorf("%s: %w", wrapperMessage, err)
+	var returnedError error
+	if gin.Mode() == gin.DebugMode {
+		returnedError = wrappedError
+	} else {
+		returnedError = errors.New("an internal error occurred processing your request")
+	}
+	fmt.Fprintln(os.Stderr, wrappedError.Error())
+	c.JSON(http.StatusInternalServerError, gin.H{"error": returnedError.Error()})
 }
 
 func _ProcessPost(c *gin.Context) {
@@ -67,7 +81,7 @@ func _ProcessPost(c *gin.Context) {
 		fmt.Sprintf("terraform-gatsby-service-%s", uuid.New().String()),
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		_Error(c, err, "an error occurred while creating a worker container")
 		return
 	}
 
@@ -80,14 +94,14 @@ func _ProcessPost(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		_Error(c, err, "an error occurred while starting a worker container")
 		return
 	}
 
 	status, err := cli.ContainerWait(context.TODO(), container.ID)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		_Error(c, err, "an error occurred while waiting for a worker container to terminate")
 		return
 	}
 
@@ -101,7 +115,7 @@ func _ProcessPost(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		_Error(c, err, "an error occurred while reading logs from a worker container")
 		return
 	}
 
@@ -113,7 +127,7 @@ func _ProcessPost(c *gin.Context) {
 	_, err = stdcopy.StdCopy(stdout, stderr, logReader)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		_Error(c, err, "an error occurred while processing logs from a worker container")
 		return
 	}
 
