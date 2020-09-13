@@ -2,7 +2,8 @@ FROM golang:1.14-alpine AS builder
 
 WORKDIR /build
 COPY . /build
-RUN go build
+RUN go mod download && \
+    go build
 
 FROM alpine
 WORKDIR /app
