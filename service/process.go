@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/big"
 	"net/http"
 	"os"
 	"strings"
