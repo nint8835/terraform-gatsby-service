@@ -7,8 +7,8 @@ RUN go mod download && \
 
 FROM alpine
 WORKDIR /app
-# ARG gin_mode=release
-# ENV GIN_MODE=${gin_mode}
+ARG gin_mode=release
+ENV GIN_MODE=${gin_mode}
 COPY --from=builder /build/terraform-gatsby-service .
 RUN addgroup -S terraform && \
     adduser -S terraform -G terraform && \
