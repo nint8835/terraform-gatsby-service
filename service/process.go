@@ -62,7 +62,6 @@ func _ProcessPost(c *gin.Context) {
 
 	stopTimeout := 5
 
-	fmt.Println("Creating container")
 	cpus := big.NewRat(1, 1)
 	container, err := cli.ContainerCreate(
 		context.TODO(),
@@ -88,7 +87,6 @@ func _ProcessPost(c *gin.Context) {
 
 	defer _CleanupContainer(container.ID)
 
-	fmt.Println("Starting container")
 	err = cli.ContainerStart(
 		context.TODO(),
 		container.ID,
@@ -100,7 +98,6 @@ func _ProcessPost(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Waiting for container to exit")
 	status, err := cli.ContainerWait(context.TODO(), container.ID)
 
 	if err != nil {
@@ -108,7 +105,6 @@ func _ProcessPost(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Getting container logs")
 	logReader, err := cli.ContainerLogs(
 		context.TODO(),
 		container.ID,
@@ -135,7 +131,6 @@ func _ProcessPost(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Returning response")
 	c.JSON(http.StatusOK, gin.H{
 		"container": container,
 		"status":    status,
