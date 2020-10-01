@@ -18,7 +18,7 @@ import (
 )
 
 type _ProcessBody struct {
-	Code string `json:"code" binding:"required"`
+	Code string `json:"code" binding:"required,max=5000"`
 }
 
 func _CleanupContainer(containerID string) {
@@ -72,7 +72,7 @@ func _ProcessPost(c *gin.Context) {
 		},
 		&container.HostConfig{
 			Resources: container.Resources{
-				Memory:   128 * 1024 * 1024,
+				Memory: 128 * 1024 * 1024,
 				// NanoCPUs: cpus.Mul(cpus, big.NewRat(1e9, 1)).Num().Int64(),
 			},
 		},
