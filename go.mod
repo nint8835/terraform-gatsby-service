@@ -12,6 +12,6 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/google/uuid v1.1.1
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/ulule/limiter/v3 v3.5.0
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 )
