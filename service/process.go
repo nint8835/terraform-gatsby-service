@@ -61,7 +61,6 @@ func _ProcessPost(c *gin.Context) {
 
 	stopTimeout := 5
 
-	// cpus := big.NewRat(1, 1)
 	container, err := cli.ContainerCreate(
 		context.TODO(),
 		&container.Config{
@@ -73,7 +72,6 @@ func _ProcessPost(c *gin.Context) {
 		&container.HostConfig{
 			Resources: container.Resources{
 				Memory: 128 * 1024 * 1024,
-				// NanoCPUs: cpus.Mul(cpus, big.NewRat(1e9, 1)).Num().Int64(),
 			},
 		},
 		&network.NetworkingConfig{},
@@ -131,10 +129,8 @@ func _ProcessPost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"container": container,
-		"status":    status,
-		"stdout":    stdout.String(),
-		"stderr":    stderr.String(),
+		"stdout": stdout.String(),
+		"stderr": stderr.String(),
 	})
 
 }
