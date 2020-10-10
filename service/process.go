@@ -95,7 +95,7 @@ func _ProcessPost(c *gin.Context) {
 		return
 	}
 
-	status, err := cli.ContainerWait(context.TODO(), container.ID)
+	_, err = cli.ContainerWait(context.TODO(), container.ID)
 
 	if err != nil {
 		_Error(c, err, "an error occurred while waiting for a worker container to terminate")
